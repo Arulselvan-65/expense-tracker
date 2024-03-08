@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <title>Expense Tracker</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Expense Tracker</h1>
+
   <form id="expenseForm">
     <label for="description">Description:</label>
     <input type="text" id="description" name="description" required><br>
@@ -12,6 +14,9 @@
     <input type="number" id="amount" name="amount" min="0" required><br>
     <button type="submit">Add Expense</button>
   </form>
+
+  <button onclick="updateExpense()">Update</button>
+  <button onclick="updateExpense()">Delete</button>
   <h2>Expenses</h2>
   <ul id="expenseList"></ul>
 
@@ -52,10 +57,46 @@
       expenseList.innerHTML = '';
       expenses.forEach(expense => {
         const li = document.createElement('li');
-        li.textContent = `${expense.description}: ${expense.amount.toFixed(2)}`;
+        li.textContent = `${expense.description}: ${expense.amount}`;
         expenseList.appendChild(li);
       });
     }
+
+    async function updateExpense(){
+      const description = document.getElementById('description').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      expenses.forEach(async (e) =>{
+        if(e.description == description){
+          let id = e._id;
+
+          const response = await fetch(`/api/expenses/${id}`,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ description, amount })
+          }).then(()=>getExpenses());
+        }
+      })
+    }
+
+    async function deleteExpense(){
+      const description = document.getElementById('description').value;
+
+      expenses.forEach(async (e) =>{
+        if(e.description == description){
+          let id = e._id;
+          const response = await fetch(`/api/expenses/${id}`,{
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          }).then(()=>getExpenses());
+          }
+      })
+    }
+
 
     getExpenses();
 
